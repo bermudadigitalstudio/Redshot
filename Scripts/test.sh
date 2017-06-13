@@ -2,7 +2,7 @@
 
 set -exo pipefail
 
-docker build -t redshot_test -f ./Scripts/Dockerfile~test ./
+docker build -t redshot_test .
 
 REDIS_NAME=$(docker run -d redis:latest)
 finish () {
