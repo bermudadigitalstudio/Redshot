@@ -54,3 +54,5 @@ extension Int: RedisType { }
 extension String: RedisType { }
 
 extension Array: RedisType { }
+
+extension NSNull: RedisType { }

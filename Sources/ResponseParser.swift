@@ -41,9 +41,14 @@ class Parser {
                 index += 1
             }
 
-//            guard let str = String(bytes: buffer, encoding: .utf8), let bulkSize = Int(str) else {
-//                throw RedisError.parseResponse
-//            }
+            guard let str = String(bytes: buffer, encoding: .utf8), let bulkSize = Int(str) else {
+                throw RedisError.parseResponse
+            }
+
+            guard bulkSize > 0 else {
+                index += 2
+                return NSNull()
+            }
 
             index += 2
 
