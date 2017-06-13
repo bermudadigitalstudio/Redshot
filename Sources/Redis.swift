@@ -216,6 +216,6 @@ public class ArrayResponse: RedisType {
 
 extension String: RedisType {
     public var bytes: [UInt8] {
-        return []
+        return Array(self.utf8)
     }
 }
