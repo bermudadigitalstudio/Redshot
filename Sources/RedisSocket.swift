@@ -41,6 +41,8 @@ class RedisSocket {
             } else {
                 strError = String(validatingUTF8: gai_strerror(status)) ?? "Unknown error code"
             }
+
+            throw RedisError.connection(strError)
         }
 
         guard let addrInfo = serverinfo else {
@@ -66,7 +68,12 @@ class RedisSocket {
             let strError = String(utf8String:strerror(errno)) ?? "Unknown error code"
             let message = "Setsockopt error \(errno) \(strError)"
             freeaddrinfo(serverinfo)
-            close(socketDescriptor)
+            #if os(Linux)
+                _ = Glibc.close(self.socketDescriptor)
+            #else
+                _ = Darwin.close(self.socketDescriptor)
+            #endif
+            throw RedisError.connection(message)
         }
         #if os(Linux)
         let connStatus = Glibc.connect(socketDescriptor, addrInfo.pointee.ai_addr, addrInfo.pointee.ai_addrlen)
@@ -121,5 +128,30 @@ class RedisSocket {
        return string.utf8CString.withUnsafeBufferPointer {
             return self.send(buffer: $0.baseAddress!, bufferSize: $0.count - 1)
         }
+    }
+
+    func close() {
+        #if os(Linux)
+            _ = Glibc.close(self.socketDescriptor)
+        #else
+            _ = Darwin.close(self.socketDescriptor)
+        #endif
+    }
+
+    var isConnected: Bool {
+        var error = 0
+        var len: socklen_t = 4
+
+        getsockopt(self.socketDescriptor, SOL_SOCKET, SO_ERROR, &error, &len)
+
+        guard error == 0 else {
+            return false
+        }
+
+        return true
+    }
+
+    deinit {
+        close()
     }
 }

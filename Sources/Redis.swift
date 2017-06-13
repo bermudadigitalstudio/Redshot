@@ -22,6 +22,10 @@ public class Redis {
     public static let cr: UInt8 = 0x0D
     public static let lf: UInt8 = 0x0A
 
+    public var isConnected: Bool {
+        return self.redisSocket.isConnected
+    }
+
     public init(hostname: String, port: Int) throws {
         self.redisSocket = try RedisSocket(hostname: hostname, port: port)
     }
@@ -49,4 +53,11 @@ public class Redis {
         return try sendCommand(command)
     }
 
+    public func close() {
+        self.redisSocket.close()
+    }
+
+    deinit {
+        self.close()
+    }
 }

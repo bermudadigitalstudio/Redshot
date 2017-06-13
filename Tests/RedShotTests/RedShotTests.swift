@@ -49,6 +49,8 @@ final class RedShotTests: XCTestCase {
 
         XCTAssertThrowsError(try redis.sendCommand("TTT"))
 
+        XCTAssertTrue(redis.isConnected)
+        redis.close()
     }
 
 }
