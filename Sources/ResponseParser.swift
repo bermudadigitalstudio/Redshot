@@ -15,7 +15,9 @@ class Parser {
     }
 
     func parse() throws -> RedisType {
-
+        guard !bytes.isEmpty else {
+            throw RedisError.emptyResponse
+        }
         guard let typeIdentifier = TypeIdentifier(rawValue: bytes[index]) else {
             throw RedisError.typeUnknown
         }
@@ -68,7 +70,6 @@ class Parser {
             }
             return value
         case .integer:
-            print("Parse Integer")
             var buffer = [UInt8]()
             while index < bytes.count, bytes[index] != Redis.cr {
                 buffer.append(bytes[index])

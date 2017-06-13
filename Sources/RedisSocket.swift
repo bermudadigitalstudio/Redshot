@@ -41,7 +41,6 @@ class RedisSocket {
             } else {
                 strError = String(validatingUTF8: gai_strerror(status)) ?? "Unknown error code"
             }
-            print(strError)
         }
 
         guard let addrInfo = serverinfo else {
@@ -68,7 +67,6 @@ class RedisSocket {
             let message = "Setsockopt error \(errno) \(strError)"
             freeaddrinfo(serverinfo)
             close(socketDescriptor)
-            print(message)
         }
         #if os(Linux)
         let connStatus = Glibc.connect(socketDescriptor, addrInfo.pointee.ai_addr, addrInfo.pointee.ai_addrlen)

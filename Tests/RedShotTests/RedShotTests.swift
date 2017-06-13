@@ -13,7 +13,7 @@ final class RedShotTests: XCTestCase {
     func testCommand() throws {
 
         #if os(Linux)
-            let hostname = "redis"
+        let hostname = "redis"
         let port = 6379
         #else
         let hostname = "localhost"
@@ -23,21 +23,18 @@ final class RedShotTests: XCTestCase {
         let redis = try Redis(hostname: hostname, port: port)
 
         let resultSet = try redis.set(key: "mycounter", value: "479")
-        print("My counter is set \(resultSet.description) ==")
         XCTAssertEqual(resultSet as? String, "OK")
 
         let result = try redis.get(key: "mycounter")
         XCTAssertEqual(result as? String, "479")
 
         let pushResult = try redis.push(channel: "deviceID", message: "hello from swift")
-        print("push \(pushResult.description)")
 
         try redis.sendCommand("DEL mylist")
         let lpush = try redis.lpush(key: "mylist", values: "world", "mundo", "monde", "welt")
         XCTAssertEqual((lpush as? Int), 4)
 
         let lpop = try redis.lpop(key: "mylist")
-        print(lpop.description)
 
         try redis.sendCommand("DEL myset")
         let sadd = try redis.sadd(key: "myset", values: "world", "mundo", "monde", "welt")

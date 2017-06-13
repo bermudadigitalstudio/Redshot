@@ -13,6 +13,7 @@ public enum RedisError: Error {
     case response(String)
     case parseResponse
     case typeUnknown
+    case emptyResponse
 }
 
 public class Redis {
@@ -27,7 +28,6 @@ public class Redis {
 
     @discardableResult public func sendCommand(_ cmd: String) throws -> RedisType {
         let command = "\(cmd)\r\n"
-        print("REDIS CMD => \(command)")
         redisSocket.send(string: command)
 
         let data = redisSocket.read()
