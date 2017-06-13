@@ -28,13 +28,16 @@ final class RedShotTests: XCTestCase {
         let result = try redis.get(key: "mycounter")
         XCTAssertEqual(result as? String, "479")
 
-        let pushResult = try redis.push(channel: "deviceID", message: "hello from swift")
+        let unknownKey = try redis.get(key: "unknown123")
+        XCTAssertNotNil(unknownKey as? NSNull)
+
+         _ = try redis.push(channel: "deviceID", message: "hello from swift")
 
         try redis.sendCommand("DEL mylist")
         let lpush = try redis.lpush(key: "mylist", values: "world", "mundo", "monde", "welt")
         XCTAssertEqual((lpush as? Int), 4)
 
-        let lpop = try redis.lpop(key: "mylist")
+        _ = try redis.lpop(key: "mylist")
 
         try redis.sendCommand("DEL myset")
         let sadd = try redis.sadd(key: "myset", values: "world", "mundo", "monde", "welt")
