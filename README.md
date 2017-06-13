@@ -12,4 +12,4 @@ The source code is formatted using [SwiftLint](https://github.com/realm/SwiftLin
 
 ## License
 
-RedShot is released under the [MIT License](https://github.com/bermudadigitalstudio/redshot/blob/master/LICENSE.txt).
+RedShot is released under the [MIT License](https://github.com/bermudadigitalstudio/redshot/blob/master/LICENSE).
