@@ -9,6 +9,33 @@ import Foundation
 
 extension Redis {
 
+    /// Request for authentication in a password-protected Redis server.
+    ///
+    /// - Parameter password: The password.
+    /// - Returns:  OK status code ( Simple String)
+    /// - Throws: if the password no match
+    public func auth(password: String) throws -> RedisType {
+        return try sendCommand("AUTH \(password)")
+    }
+
+    /// Request for authentication in a password-protected Redis server.
+    ///
+    /// - Parameter password: The password.
+    /// - Returns: true if the password match, otherwise false
+    /// - Throws: any other errors
+    public func auth(password: String) throws -> Bool {
+        do {
+            let response: RedisType = try self.auth(password: password)
+            guard let resp = response as? String else {
+                return false
+            }
+
+            return resp == "OK"
+        } catch RedisError.response {
+            return false
+        }
+    }
+
     public func push(channel: String, message: String) throws -> RedisType {
         return try sendCommand("PUBLISH \(channel) \"\(message)\"")
     }

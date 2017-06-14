@@ -26,8 +26,27 @@ public class Redis {
         return self.redisSocket.isConnected
     }
 
-    public init(hostname: String, port: Int) throws {
+    /// Initializes a `Redis` instance and connects to a Redis server.
+    ///
+    /// - Parameters:
+    ///   - hostname: the server hostname or IP address.
+    ///   - port: the port number.
+    /// - Throws: if the client can't connect
+    public required init(hostname: String, port: Int) throws {
         self.redisSocket = try RedisSocket(hostname: hostname, port: port)
+    }
+
+    /// Initializes a `Redis` instance and connects to a Redis server with a password.
+    ///
+    /// - Parameters:
+    ///   - hostname: the server hostname or IP address.
+    ///   - port: the port number.
+    ///   - password: The password.
+    /// - Throws: if the client can't connect
+    public convenience init(hostname: String, port: Int, password: String) throws {
+        try self.init(hostname: hostname, port: port)
+
+        let _:RedisType = try auth(password: password)
     }
 
     @discardableResult public func sendCommand(_ cmd: String) throws -> RedisType {

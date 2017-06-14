@@ -24,7 +24,7 @@ class RedShotPerformanceTests: XCTestCase {
         self.measure {
             do {
                 let hostname = "localhost"
-                let port = 32768
+                let port = 6379
                 let redis = try Redis(hostname: hostname, port: port)
 
                 var errorCount = 0
@@ -48,7 +48,7 @@ class RedShotPerformanceTests: XCTestCase {
         self.measure {
             do {
                 let hostname = "localhost"
-                let port = 32768
+                let port = 6379
                 let redis = try Redis(hostname: hostname, port: port)
                 for index in 1...10_000 {
 
