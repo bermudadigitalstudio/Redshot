@@ -37,7 +37,7 @@ extension Redis {
     }
 
     public func push(channel: String, message: String) throws -> RedisType {
-        return try sendCommand("PUBLISH \(channel) \"\(message)\"")
+        return try sendCommand("PUBLISH \(channel) '\(message)'")
     }
 
     public func get(key: String) throws -> RedisType {

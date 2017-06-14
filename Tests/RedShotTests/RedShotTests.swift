@@ -5,8 +5,35 @@ final class RedShotTests: XCTestCase {
 
     static var allTests = [
 		("testCommand", testCommand),
-        ("testInitWithPassword", testInitWithPassword)
+        ("testInitWithPassword", testInitWithPassword),
+        ("testPush", testPush)
     ]
+
+    func testPush() throws {
+
+        #if os(Linux)
+            let hostname = "redis"
+            let port = 6379
+        #else
+            let hostname = "localhost"
+            let port = 6379
+        #endif
+
+        let redis = try Redis(hostname: hostname, port: port)
+
+        let failedAuth: Bool = try redis.auth(password: "hello")
+        XCTAssertFalse(failedAuth)
+
+        let authResp: Bool = try redis.auth(password: "password123")
+        XCTAssertTrue(authResp)
+
+        _ = try redis.push(channel: "ZZ1", message: "{\"channel\":\"dd\",\"msg\":\"sss\"}")
+
+        _ = try redis.push(channel: "ZZ1", message: "Simple String")
+
+        XCTAssertTrue(redis.isConnected)
+        redis.close()
+    }
 
     func testCommand() throws {
 
@@ -55,6 +82,8 @@ final class RedShotTests: XCTestCase {
 
         let pong = try redis.sendCommand("PING")
         XCTAssertEqual(pong.description, "PONG")
+
+        try redis.push(channel: "ZZ1", message: "{\"channel\":\"dd\",\"msg\":\"sss\"}")
 
         XCTAssertTrue(redis.isConnected)
         redis.close()
