@@ -78,12 +78,16 @@ class RedisSocket {
         #if os(Linux)
         let connStatus = Glibc.connect(socketDescriptor, addrInfo.pointee.ai_addr, addrInfo.pointee.ai_addrlen)
         if connStatus != 0 {
-            throw RedisError.connection("can't connect : \(connStatus)")
+            let strError = String(utf8String:strerror(errno)) ?? "Unknown error code"
+            let message = "Setsockopt error \(errno) \(strError)"
+            throw RedisError.connection("can't connect : \(connStatus) message : \(message)")
         }
         #else
         let connStatus = Darwin.connect(socketDescriptor, addrInfo.pointee.ai_addr, addrInfo.pointee.ai_addrlen)
         if connStatus != 0 {
-            throw RedisError.connection("can't connect : \(connStatus)")
+            let strError = String(utf8String:strerror(errno)) ?? "Unknown error code"
+            let message = "Setsockopt error \(errno) \(strError)"
+            throw RedisError.connection("can't connect : \(connStatus) message : \(message)")
         }
         #endif
 
