@@ -33,16 +33,11 @@ class RedisSocket {
 
         let status = getaddrinfo(hostname, port.description, &hints, &serverinfo)
 
-        if status != 0 {
-            var strError: String
-
-            if status == EAI_SYSTEM {
-                strError = String(validatingUTF8: strerror(errno)) ?? "Unknown error code"
-            } else {
-                strError = String(validatingUTF8: gai_strerror(status)) ?? "Unknown error code"
-            }
-
-            throw RedisError.connection(strError)
+        do {
+            try RedisSocket.decodeAddrInfoStatus(status: status)
+        } catch {
+            freeaddrinfo(serverinfo)
+            throw error
         }
 
         guard let addrInfo = serverinfo else {
@@ -50,7 +45,9 @@ class RedisSocket {
         }
 
         // Create the socket descriptor
-        socketDescriptor = socket(addrInfo.pointee.ai_family, addrInfo.pointee.ai_socktype, addrInfo.pointee.ai_protocol)
+        socketDescriptor = socket(addrInfo.pointee.ai_family,
+                                  addrInfo.pointee.ai_socktype,
+                                  addrInfo.pointee.ai_protocol)
 
         guard socketDescriptor >= 0 else {
             throw RedisError.connection("Cannot Connect")
@@ -59,38 +56,32 @@ class RedisSocket {
         // set socket options
         var optval = 1
         #if os(Linux)
-        setsockopt(socketDescriptor, SOL_SOCKET, SO_REUSEADDR, &optval, socklen_t(MemoryLayout<Int>.stride))
+        let statusSocketOpt = setsockopt(socketDescriptor, SOL_SOCKET, SO_REUSEADDR,
+                                         &optval, socklen_t(MemoryLayout<Int>.stride))
         #else
-        setsockopt(socketDescriptor, SOL_SOCKET, SO_NOSIGPIPE, &optval, socklen_t(MemoryLayout<Int>.stride))
+        let statusSocketOpt = setsockopt(socketDescriptor, SOL_SOCKET, SO_NOSIGPIPE,
+                                         &optval, socklen_t(MemoryLayout<Int>.stride))
         #endif
 
-        if status == -1 {
-            let strError = String(utf8String:strerror(errno)) ?? "Unknown error code"
-            let message = "Setsockopt error \(errno) \(strError)"
-            freeaddrinfo(serverinfo)
+        do {
+            try RedisSocket.decodeSetSockOptStatus(status: statusSocketOpt)
+        } catch {
             #if os(Linux)
                 _ = Glibc.close(self.socketDescriptor)
             #else
                 _ = Darwin.close(self.socketDescriptor)
             #endif
-            throw RedisError.connection(message)
+            throw error
         }
+
+        // Connect
         #if os(Linux)
         let connStatus = Glibc.connect(socketDescriptor, addrInfo.pointee.ai_addr, addrInfo.pointee.ai_addrlen)
-        if connStatus != 0 {
-            let strError = String(utf8String:strerror(errno)) ?? "Unknown error code"
-            let message = "Setsockopt error \(errno) \(strError)"
-            throw RedisError.connection("can't connect : \(connStatus) message : \(message)")
-        }
+        try RedisSocket.decodeConnectStatus(connStatus: connStatus)
         #else
         let connStatus = Darwin.connect(socketDescriptor, addrInfo.pointee.ai_addr, addrInfo.pointee.ai_addrlen)
-        if connStatus != 0 {
-            let strError = String(utf8String:strerror(errno)) ?? "Unknown error code"
-            let message = "Setsockopt error \(errno) \(strError)"
-            throw RedisError.connection("can't connect : \(connStatus) message : \(message)")
-        }
+        try RedisSocket.decodeConnectStatus(connStatus: connStatus)
         #endif
-
     }
 
     func read() -> Data {
@@ -157,5 +148,36 @@ class RedisSocket {
 
     deinit {
         close()
+    }
+
+    static func decodeAddrInfoStatus(status: Int32) throws {
+        if status != 0 {
+            var strError: String
+
+            if status == EAI_SYSTEM {
+                strError = String(validatingUTF8: strerror(errno)) ?? "Unknown error code"
+            } else {
+                strError = String(validatingUTF8: gai_strerror(status)) ?? "Unknown error code"
+            }
+
+            throw RedisError.connection(strError)
+        }
+    }
+
+    static func decodeSetSockOptStatus(status: Int32) throws {
+        if status == -1 {
+            let strError = String(utf8String:strerror(errno)) ?? "Unknown error code"
+            let message = "Setsockopt error \(errno) \(strError)"
+
+            throw RedisError.connection(message)
+        }
+    }
+
+    static func decodeConnectStatus(connStatus: Int32) throws {
+        if connStatus != 0 {
+            let strError = String(utf8String:strerror(errno)) ?? "Unknown error code"
+            let message = "Setsockopt error \(errno) \(strError)"
+            throw RedisError.connection("can't connect : \(connStatus) message : \(message)")
+        }
     }
 }

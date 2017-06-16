@@ -1,4 +1,5 @@
 import XCTest
+
 import RedShot
 
 final class RedShotTests: XCTestCase {
@@ -6,8 +7,66 @@ final class RedShotTests: XCTestCase {
     static var allTests = [
 		("testCommand", testCommand),
         ("testInitWithPassword", testInitWithPassword),
-        ("testPush", testPush)
+        ("testPush", testPush),
+        ("testSubscribe", testSubscribe),
+        ("testUnsubscribe", testUnsubscribe)
     ]
+
+    func testSubscribe() throws {
+        #if os(Linux)
+            let hostname = "redis"
+            let port = 6379
+        #else
+            let hostname = "localhost"
+            let port = 6379
+        #endif
+
+        let redis = try Redis(hostname: hostname, port: port, password:"password123")
+
+        let expectation = self.expectation(description: "Subscribe")
+
+        try redis.subscribe(channel: "ZZ1", callback: { response, _ in
+
+            if let resp = response as? Array<RedisType> {
+                if resp[0].description == "message" {
+                    XCTAssertEqual(resp[2].description, "hello")
+                    expectation.fulfill()
+                }
+            }
+        })
+
+        sleep(2)
+        let sent = try redis.publish(channel: "ZZ1", message: "hello")
+        XCTAssertEqual(sent as? Int, 1)
+        self.waitForExpectations(timeout: 10, handler: nil)
+    }
+
+    func testUnsubscribe() throws {
+        #if os(Linux)
+            let hostname = "redis"
+            let port = 6379
+        #else
+            let hostname = "localhost"
+            let port = 6379
+        #endif
+
+        let redis = try Redis(hostname: hostname, port: port, password:"password123")
+
+        try redis.subscribe(channel: "ZX81", callback: { _, _ in
+
+        })
+
+        sleep(2)
+        let receiver1 = try redis.publish(channel: "ZX81", message: "message")
+        XCTAssertEqual(receiver1 as? Int, 1)
+
+        redis.unsubscribe(channel: "ZX81")
+
+        sleep(1)
+        let receiver2 = try redis.publish(channel: "ZX81", message: "message")
+        XCTAssertEqual(receiver2 as? Int, 0)
+
+    }
 
     func testPush() throws {
 
@@ -20,16 +79,12 @@ final class RedShotTests: XCTestCase {
         #endif
 
         let redis = try Redis(hostname: hostname, port: port)
-
-        let failedAuth: Bool = try redis.auth(password: "hello")
-        XCTAssertFalse(failedAuth)
-
         let authResp: Bool = try redis.auth(password: "password123")
         XCTAssertTrue(authResp)
 
-        _ = try redis.push(channel: "ZZ1", message: "{\"channel\":\"dd\",\"msg\":\"sss\"}")
+        _ = try redis.publish(channel: "ZZ1", message: "{\"channel\":\"dd\",\"msg\":\"sss\"}")
 
-        _ = try redis.push(channel: "ZZ1", message: "Simple String")
+        _ = try redis.publish(channel: "ZZ1", message: "Simple String")
 
         XCTAssertTrue(redis.isConnected)
         redis.close()
@@ -62,7 +117,7 @@ final class RedShotTests: XCTestCase {
         let unknownKey = try redis.get(key: "unknown123")
         XCTAssertNotNil(unknownKey as? NSNull)
 
-         _ = try redis.push(channel: "deviceID", message: "hello from swift")
+         _ = try redis.publish(channel: "deviceID", message: "hello from swift")
 
         try redis.sendCommand("DEL mylist")
         let lpush = try redis.lpush(key: "mylist", values: "world", "mundo", "monde", "welt")
@@ -83,7 +138,8 @@ final class RedShotTests: XCTestCase {
         let pong = try redis.sendCommand("PING")
         XCTAssertEqual(pong.description, "PONG")
 
-        try redis.push(channel: "ZZ1", message: "{\"channel\":\"dd\",\"msg\":\"sss\"}")
+        let received = try redis.publish(channel: "ZZ1", message: "{\"channel\":\"dd\",\"msg\":\"sss\"}")
+        XCTAssertEqual(received as? Int, 0)
 
         XCTAssertTrue(redis.isConnected)
         redis.close()

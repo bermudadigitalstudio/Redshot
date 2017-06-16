@@ -25,7 +25,7 @@ class RedShotPerformanceTests: XCTestCase {
             do {
                 let hostname = "localhost"
                 let port = 6379
-                let redis = try Redis(hostname: hostname, port: port)
+                let redis = try Redis(hostname: hostname, port: port, password: "password123")
 
                 var errorCount = 0
                 for index in 1...10_000 {
@@ -49,11 +49,11 @@ class RedShotPerformanceTests: XCTestCase {
             do {
                 let hostname = "localhost"
                 let port = 6379
-                let redis = try Redis(hostname: hostname, port: port)
+                let redis = try Redis(hostname: hostname, port: port, password: "password123")
                 for index in 1...10_000 {
 
                     do {
-                        _ = try redis.push(channel: "PERF", message: "value_\(index)")
+                        _ = try redis.publish(channel: "PERF", message: "value_\(index)")
                     } catch {
                     }
                 }

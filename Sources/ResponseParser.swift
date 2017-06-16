@@ -32,6 +32,7 @@ class Parser {
             }
 
             let errorMessage = String(bytes: buffer, encoding: .utf8)
+            print(errorMessage ?? "no error message")
             throw RedisError.response(errorMessage ?? "Unknown error")
         case .bulkString:
             var buffer = [UInt8]()

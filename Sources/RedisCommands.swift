@@ -36,10 +36,22 @@ extension Redis {
         }
     }
 
-    public func push(channel: String, message: String) throws -> RedisType {
+    /// Posts a message to the given channel.
+    ///
+    /// - Parameters:
+    ///   - channel: The channel.
+    ///   - message: The message.
+    /// - Returns: The number of clients that received the message.
+    /// - Throws: something bad happened.
+    public func publish(channel: String, message: String) throws -> RedisType {
         return try sendCommand("PUBLISH \(channel) '\(message)'")
     }
 
+    /// Get the value of a key.
+    ///
+    /// - Parameter key: The key.
+    /// - Returns: the value of key, or NSNull when key does not exist.
+    /// - Throws: something bad happened.
     public func get(key: String) throws -> RedisType {
         return try sendCommand("GET \(key)")
     }
@@ -53,7 +65,7 @@ extension Redis {
     ///   - exist: if true Only set the key if it already exist. if false Only set the key if it does not already exist.
     ///   - expire: If not nil, set the specified expire time, in milliseconds.
     /// - Returns: A simple string reply OK if SET was executed correctly.
-    /// - Throws:
+    /// - Throws: something bad happened.
     public func set(key: String, value: String, exist: Bool? = nil, expire: TimeInterval? = nil) throws -> RedisType {
         var cmd = "SET \(key) \(value)"
 
