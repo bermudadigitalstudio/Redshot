@@ -123,11 +123,11 @@ final class RedShotTests: XCTestCase {
         let lpush = try redis.lpush(key: "mylist", values: "world", "mundo", "monde", "welt")
         XCTAssertEqual((lpush as? Int), 4)
 
-        _ = try redis.lpop(key: "mylist")
+        let lpopResult = try redis.lpop(key: "mylist")
+        XCTAssertEqual(lpopResult as? String, "welt")
 
         try redis.sendCommand("DEL myset")
         let sadd = try redis.sadd(key: "myset", values: "world", "mundo", "monde", "welt")
-
         XCTAssertEqual((sadd as? Int), 4)
 
         let smembers = try redis.smbembers(key: "myset")
