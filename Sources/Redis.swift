@@ -21,7 +21,7 @@ public enum RedisError: Error {
 /// Redis Client
 public class Redis {
 
-    private let redisSocket: RedisSocket
+    private var redisSocket: RedisSocket
     public static let cr: UInt8 = 0x0D
     public static let lf: UInt8 = 0x0A
     private let hostname: String
@@ -60,6 +60,13 @@ public class Redis {
     }
 
     @discardableResult public func sendCommand(_ cmd: String) throws -> RedisType {
+        if !self.isConnected {
+            redisSocket = try RedisSocket(hostname: self.hostname, port: self.port)
+            if let password = password {
+                let _: Bool = try self.auth(password: password)
+            }
+        }
+
         let command = "\(cmd)\r\n"
         redisSocket.send(string: command)
 
