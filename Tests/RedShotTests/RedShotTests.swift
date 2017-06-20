@@ -5,7 +5,8 @@ import RedShot
 final class RedShotTests: XCTestCase {
 
     static var allTests = [
-		("testCommand", testCommand),
+        ("testComplexString", testComplexString),
+        ("testCommand", testCommand),
         ("testInitWithPassword", testInitWithPassword),
         ("testPush", testPush),
         ("testSubscribe", testSubscribe),
@@ -41,30 +42,34 @@ final class RedShotTests: XCTestCase {
         self.waitForExpectations(timeout: 10, handler: nil)
     }
 
-    func testUnsubscribe() throws {
-        #if os(Linux)
-            let hostname = "redis"
-            let port = 6379
-        #else
-            let hostname = "localhost"
-            let port = 6379
-        #endif
+    func testUnsubscribe() {
+        do {
+            #if os(Linux)
+                let hostname = "redis"
+                let port = 6379
+            #else
+                let hostname = "localhost"
+                let port = 6379
+            #endif
 
-        let redis = try Redis(hostname: hostname, port: port, password:"password123")
+            let redis = try Redis(hostname: hostname, port: port, password:"password123")
 
-        try redis.subscribe(channel: "ZX81", callback: { _, _ in
+            try redis.subscribe(channel: "ZX81", callback: { _, _ in
 
-        })
+            })
 
-        sleep(2)
-        let receiver1 = try redis.publish(channel: "ZX81", message: "message")
-        XCTAssertEqual(receiver1 as? Int, 1)
+            sleep(2)
+            let receiver1 = try redis.publish(channel: "ZX81", message: "message")
+            XCTAssertEqual(receiver1 as? Int, 1)
 
-        redis.unsubscribe(channel: "ZX81")
+            redis.unsubscribe(channel: "ZX81")
 
-        sleep(1)
-        let receiver2 = try redis.publish(channel: "ZX81", message: "message")
-        XCTAssertEqual(receiver2 as? Int, 0)
+            sleep(2)
+            let receiver2 = try redis.publish(channel: "ZX81", message: "message")
+            XCTAssertEqual(receiver2 as? Int, 0)
+        } catch {
+            XCTFail(error.localizedDescription)
+        }
 
     }
 
@@ -143,6 +148,31 @@ final class RedShotTests: XCTestCase {
 
         XCTAssertTrue(redis.isConnected)
         redis.close()
+    }
+
+    func testComplexString() {
+        do {
+            #if os(Linux)
+                let hostname = "redis"
+                let port = 6379
+            #else
+                let hostname = "localhost"
+                let port = 6379
+            #endif
+
+            let message = "18:28:13.036 VERBOSE Extensions.init():14 - Request: Request(method: \"GET\", path: \"/health\", body: \"\", headers: [(name: \"User-Agent\", value: \"Paw/3.1.1 (Macintosh; OS X/10.12.5) GCDHTTPRequest\"), (name: \"Connection\", value: \"close\"), (name: \"Host\", value: \"localhost:8000\")]), Code: 200, Body: Host: localhost" +
+            "Time: 2017-06-20 16:28:13 +0000" +
+            "\r\n" +
+            "Status: Ok Headers: [(name: \"Content-Type\", value: \"application/json\")]"
+
+            let redis = try Redis(hostname: hostname, port: port, password:"password123")
+            let push = try redis.publish(channel: "ComplexString", message: message)
+            XCTAssertEqual(push as? Int, 0)
+        } catch RedisError.response(let response) {
+            XCTFail(response)
+        } catch {
+            print(error.localizedDescription)
+        }
     }
 
     func testInitWithPassword() {

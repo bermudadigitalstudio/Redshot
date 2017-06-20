@@ -44,7 +44,8 @@ extension Redis {
     /// - Returns: The number of clients that received the message.
     /// - Throws: something bad happened.
     public func publish(channel: String, message: String) throws -> RedisType {
-        return try sendCommand("PUBLISH \(channel) '\(message)'")
+        let msg = message.replacingOccurrences(of: "\r\n|\n|\r", with: " ", options: .regularExpression)
+        return try sendCommand("PUBLISH \(channel) '\(msg)'")
     }
 
     /// Get the value of a key.
