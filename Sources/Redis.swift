@@ -59,7 +59,7 @@ public class Redis {
         let _:RedisType = try auth(password: password)
     }
 
-    @discardableResult public func sendCommand(_ cmd: String) throws -> RedisType {
+    private func processCmd(_ cmd: String) throws -> RedisType {
         if !self.isConnected {
             redisSocket = try RedisSocket(hostname: self.hostname, port: self.port)
             if let password = password {
@@ -67,9 +67,7 @@ public class Redis {
             }
         }
 
-        let command = "\(cmd)\r\n"
-        redisSocket.send(string: command)
-
+        redisSocket.send(string: cmd)
         let data = redisSocket.read()
 
         let bytes = data.withUnsafeBytes {
@@ -80,13 +78,28 @@ public class Redis {
         return try parser.parse()
     }
 
-    public func sendArrayCommand(_ cmd: String, key: String, values: [String]) throws -> RedisType {
-        var command = "\(cmd) \(key)"
+    @discardableResult public func sendCommand(_ cmd: String, values: [String]) throws -> RedisType {
+        var command = "*"
+        command.append("\(values.count + 1)")
+        command.append("\r\n")
+        command.append(redisBulkString(value: cmd))
+
         for value in values {
-            command.append(" \"\(value)\"")
+            command.append(redisBulkString(value: value))
         }
 
-        return try sendCommand(command)
+        return try processCmd(command)
+    }
+
+    private func redisBulkString(value: String) -> String {
+        var buffer = "$"
+        let strLength = value.characters.count
+        buffer.append("\(strLength)")
+        buffer.append("\r\n")
+        buffer.append(value)
+        buffer.append("\r\n")
+
+        return buffer
     }
 
     /// Subscribes the client to the specified channel.

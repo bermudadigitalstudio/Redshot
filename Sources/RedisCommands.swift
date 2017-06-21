@@ -15,7 +15,7 @@ extension Redis {
     /// - Returns:  OK status code ( Simple String)
     /// - Throws: if the password no match
     public func auth(password: String) throws -> RedisType {
-        return try sendCommand("AUTH \(password)")
+        return try sendCommand("AUTH", values: [password])
     }
 
     /// Request for authentication in a password-protected Redis server.
@@ -44,8 +44,7 @@ extension Redis {
     /// - Returns: The number of clients that received the message.
     /// - Throws: something bad happened.
     public func publish(channel: String, message: String) throws -> RedisType {
-        let msg = message.replacingOccurrences(of: "\r\n|\n|\r", with: " ", options: .regularExpression)
-        return try sendCommand("PUBLISH \(channel) '\(msg)'")
+        return try sendCommand("PUBLISH", values: [channel, message])
     }
 
     /// Get the value of a key.
@@ -54,7 +53,7 @@ extension Redis {
     /// - Returns: the value of key, or NSNull when key does not exist.
     /// - Throws: something bad happened.
     public func get(key: String) throws -> RedisType {
-        return try sendCommand("GET \(key)")
+        return try sendCommand("GET", values: [key])
     }
 
     /// Set key to hold the string value. If key already holds a value, it is overwritten, regardless of its type.
@@ -68,7 +67,7 @@ extension Redis {
     /// - Returns: A simple string reply OK if SET was executed correctly.
     /// - Throws: something bad happened.
     public func set(key: String, value: String, exist: Bool? = nil, expire: TimeInterval? = nil) throws -> RedisType {
-        var cmd = "SET \(key) \(value)"
+        var cmd = [key, value]
 
         if let exist = exist {
             cmd.append(exist ? "XX" : "NX")
@@ -78,23 +77,27 @@ extension Redis {
             cmd.append("PX \(Int(expire * 1000.0))")
         }
 
-        return try sendCommand(cmd)
+        return try sendCommand("SET", values: cmd)
     }
 
     public func sadd(key: String, values: String...) throws -> RedisType {
-        return try sendArrayCommand("SADD", key: key, values: values)
+        var vals = [key]
+        vals.append(contentsOf: values)
+        return try sendCommand("SADD", values: vals)
     }
 
     public func smbembers(key: String) throws -> RedisType {
-        return try sendCommand("SMEMBERS \(key)")
+      return try sendCommand("SMEMBERS", values: [key])
     }
 
     public func lpush(key: String, values: String...) throws -> RedisType {
-        return try sendArrayCommand("LPUSH", key: key, values: values)
+        var vals = [key]
+        vals.append(contentsOf: values)
+        return try sendCommand("LPUSH", values: vals)
     }
 
     public func lpop(key: String) throws -> RedisType {
-        return try sendCommand("LPOP \(key)")
+      return try sendCommand("LPOP", values: [key])
     }
 
 }

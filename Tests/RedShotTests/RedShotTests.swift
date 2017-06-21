@@ -124,23 +124,23 @@ final class RedShotTests: XCTestCase {
 
          _ = try redis.publish(channel: "deviceID", message: "hello from swift")
 
-        try redis.sendCommand("DEL mylist")
+        try redis.sendCommand("DEL", values: ["mylist"])
         let lpush = try redis.lpush(key: "mylist", values: "world", "mundo", "monde", "welt")
         XCTAssertEqual((lpush as? Int), 4)
 
         let lpopResult = try redis.lpop(key: "mylist")
         XCTAssertEqual(lpopResult as? String, "welt")
 
-        try redis.sendCommand("DEL myset")
+        try redis.sendCommand("DEL", values: ["myset"])
         let sadd = try redis.sadd(key: "myset", values: "world", "mundo", "monde", "welt")
         XCTAssertEqual((sadd as? Int), 4)
 
         let smembers = try redis.smbembers(key: "myset")
         XCTAssertEqual((smembers as? Array<RedisType>)?.count, 4)
 
-        XCTAssertThrowsError(try redis.sendCommand("TTT"))
+        XCTAssertThrowsError(try redis.sendCommand("TTT", values: []))
 
-        let pong = try redis.sendCommand("PING")
+        let pong = try redis.sendCommand("PING", values: [])
         XCTAssertEqual(pong.description, "PONG")
 
         let received = try redis.publish(channel: "ZZ1", message: "{\"channel\":\"dd\",\"msg\":\"sss\"}")
@@ -160,9 +160,11 @@ final class RedShotTests: XCTestCase {
                 let port = 6379
             #endif
 
-            let message = "18:28:13.036 VERBOSE Extensions.init():14 - Request: Request(method: \"GET\", path: \"/health\", body: \"\", headers: [(name: \"User-Agent\", value: \"Paw/3.1.1 (Macintosh; OS X/10.12.5) GCDHTTPRequest\"), (name: \"Connection\", value: \"close\"), (name: \"Host\", value: \"localhost:8000\")]), Code: 200, Body: Host: localhost" +
-            "Time: 2017-06-20 16:28:13 +0000" +
-            "\r\n" +
+            let message = "18:28:13.036 VERBOSE Extensions.init():14 - Request: Request(method: \"GET\", " +
+            "path: \"/health\", body: \"\", headers: [(name: \"User-Agent\", " +
+            "value: \"Paw/3.1.1 (Macintosh; OS X/10.12.5) GCDHTTPRequest\"), " +
+            "(name: \"Connection\", value: \"close\"), (name: \"Host\", value: \"localhost:8000\")]), " +
+            "Code: 200, Body: Host: localhost Time: 2017-06-20 16:28:13 +0000\r\n" +
             "Status: Ok Headers: [(name: \"Content-Type\", value: \"application/json\")]"
 
             let redis = try Redis(hostname: hostname, port: port, password:"password123")
