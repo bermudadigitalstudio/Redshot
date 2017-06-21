@@ -195,4 +195,22 @@ final class RedShotTests: XCTestCase {
             XCTFail("Init throw an error : \(error.localizedDescription)")
         }
     }
+
+    func testClientSetName() {
+        #if os(Linux)
+            let hostname = "redis"
+            let port = 6379
+        #else
+            let hostname = "localhost"
+            let port = 6379
+        #endif
+
+        do {
+            let redis = try Redis(hostname: hostname, port: port, password:"password123")
+            let setName = try redis.clientSetName(clientName: "REDSHOT")
+            XCTAssertEqual(setName as? String, "OK")
+        } catch {
+            XCTFail("Init throw an error : \(error.localizedDescription)")
+        }
+    }
 }

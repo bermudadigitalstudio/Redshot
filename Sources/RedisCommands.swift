@@ -100,4 +100,8 @@ extension Redis {
       return try sendCommand("LPOP", values: [key])
     }
 
+    public func clientSetName(clientName: String) throws -> RedisType {
+        return try sendCommand("CLIENT", values: ["SETNAME", clientName])
+    }
+
 }
