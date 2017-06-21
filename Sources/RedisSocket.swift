@@ -31,6 +31,12 @@ class RedisSocket {
 
         var serverinfo: UnsafeMutablePointer<addrinfo>? = nil
 
+        defer {
+            if serverinfo != nil {
+                freeaddrinfo(serverinfo)
+            }
+        }
+
         let status = getaddrinfo(hostname, port.description, &hints, &serverinfo)
 
         do {
@@ -86,7 +92,7 @@ class RedisSocket {
 
     func read() -> Data {
         var data = Data()
-        let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: 65_507)
+        let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: 4096)
         var readFlags: Int32 = 0
         buffer.initialize(to: 0x0)
         var read = 0
@@ -100,6 +106,9 @@ class RedisSocket {
             data.append(buffer, count: read)
         }
 
+        defer {
+            buffer.deallocate(capacity: 4096)
+        }
         return data
     }
 
