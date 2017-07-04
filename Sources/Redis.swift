@@ -48,7 +48,6 @@ public class Redis {
 
         self.redisSocket = try RedisSocket(hostname: hostname, port: port)
 
-
         if let password = password, !password.characters.isEmpty {
         	let _:RedisType = try auth(password: password)
         }

@@ -18,6 +18,7 @@ class Parser {
         guard !bytes.isEmpty else {
             throw RedisError.emptyResponse
         }
+
         guard let typeIdentifier = TypeIdentifier(rawValue: bytes[index]) else {
             throw RedisError.typeUnknown
         }

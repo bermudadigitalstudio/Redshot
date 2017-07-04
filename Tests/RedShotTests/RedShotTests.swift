@@ -190,7 +190,7 @@ final class RedShotTests: XCTestCase {
 
         XCTAssertThrowsError(try Redis(hostname: hostname, port: port, password:"Hello"))
         XCTAssertNoThrow(try Redis(hostname: hostname, port: port, password: ""))
-        
+
         do {
             let redis = try Redis(hostname: hostname, port: port, password:"password123")
             XCTAssertNotNil(redis)
@@ -217,7 +217,7 @@ final class RedShotTests: XCTestCase {
             XCTFail("Init throw an error : \(error.localizedDescription)")
         }
     }
-    
+
     func testIncrement() {
         #if os(Linux)
             let hostname = "redis"
@@ -235,7 +235,7 @@ final class RedShotTests: XCTestCase {
             XCTFail("Incr throw an error : \(error.localizedDescription)")
         }
     }
-    
+
     func testSelect() {
         #if os(Linux)
             let hostname = "redis"
