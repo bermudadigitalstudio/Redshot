@@ -103,5 +103,13 @@ extension Redis {
     public func clientSetName(clientName: String) throws -> RedisType {
         return try sendCommand("CLIENT", values: ["SETNAME", clientName])
     }
+    
+    public func incr(key: String) throws -> RedisType {
+    	return try sendCommand("INCR", values: [key])
+    }
+    
+    public func select(databaseIndex: Int) throws -> RedisType {
+    	return try sendCommand("SELECT", values: ["\(databaseIndex)"])
+    }
 
 }
