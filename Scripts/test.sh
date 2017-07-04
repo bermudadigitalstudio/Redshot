@@ -4,7 +4,7 @@ set -exo pipefail
 
 docker build -t redshot_test .
 
-REDIS_NAME=$(docker run -d redis:latest --requirepass password123)
+REDIS_NAME=$(docker run --rm -d redis:latest --requirepass password123)
 finish () {
   docker stop $REDIS_NAME
 }

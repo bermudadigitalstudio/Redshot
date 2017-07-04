@@ -40,7 +40,7 @@ print(myCounter)
 
 ## Running Unit Tests
 
-RedShot's unit test require a running Redis database with the following values.
+RedShot's unit test require a running Redis database with a password.
 
 Redis instance can be launch with Docker :
 

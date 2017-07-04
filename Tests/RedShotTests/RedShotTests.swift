@@ -10,7 +10,9 @@ final class RedShotTests: XCTestCase {
         ("testInitWithPassword", testInitWithPassword),
         ("testPush", testPush),
         ("testSubscribe", testSubscribe),
-        ("testUnsubscribe", testUnsubscribe)
+        ("testUnsubscribe", testUnsubscribe),
+        ("testIncrement", testIncrement),
+        ("testSelect", testSelect)
     ]
 
     func testSubscribe() throws {
@@ -187,6 +189,8 @@ final class RedShotTests: XCTestCase {
         #endif
 
         XCTAssertThrowsError(try Redis(hostname: hostname, port: port, password:"Hello"))
+        XCTAssertNoThrow(try Redis(hostname: hostname, port: port, password: ""))
+        
         do {
             let redis = try Redis(hostname: hostname, port: port, password:"password123")
             XCTAssertNotNil(redis)
@@ -211,6 +215,42 @@ final class RedShotTests: XCTestCase {
             XCTAssertEqual(setName as? String, "OK")
         } catch {
             XCTFail("Init throw an error : \(error.localizedDescription)")
+        }
+    }
+    
+    func testIncrement() {
+        #if os(Linux)
+            let hostname = "redis"
+            let port = 6379
+        #else
+            let hostname = "localhost"
+            let port = 6379
+        #endif
+
+        do {
+            let redis = try Redis(hostname: hostname, port: port, password:"password123")
+            let incrResult = try redis.incr(key: "INCR_KEY")
+            XCTAssertEqual(incrResult as? Int, 1)
+        } catch {
+            XCTFail("Incr throw an error : \(error.localizedDescription)")
+        }
+    }
+    
+    func testSelect() {
+        #if os(Linux)
+            let hostname = "redis"
+            let port = 6379
+        #else
+            let hostname = "localhost"
+            let port = 6379
+        #endif
+
+        do {
+            let redis = try Redis(hostname: hostname, port: port, password:"password123")
+            let selectResult = try redis.select(databaseIndex: 3)
+            XCTAssertEqual(selectResult as? String, "OK")
+        } catch {
+            XCTFail("Select throw an error : \(error.localizedDescription)")
         }
     }
 }

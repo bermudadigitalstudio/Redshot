@@ -39,24 +39,19 @@ public class Redis {
     /// - Parameters:
     ///   - hostname: the server hostname or IP address.
     ///   - port: the port number.
+    ///   - password: The password is optional. If `password` is an empty `String` is ignored.
     /// - Throws: if the client can't connect
-    public required init(hostname: String, port: Int) throws {
-        self.hostname = hostname
+    public required init(hostname: String, port: Int, password: String? = nil) throws {
+		self.hostname = hostname
         self.port = port
-        self.redisSocket = try RedisSocket(hostname: hostname, port: port)
-    }
-
-    /// Initializes a `Redis` instance and connects to a Redis server with a password.
-    ///
-    /// - Parameters:
-    ///   - hostname: the server hostname or IP address.
-    ///   - port: the port number.
-    ///   - password: The password.
-    /// - Throws: if the client can't connect
-    public convenience init(hostname: String, port: Int, password: String) throws {
-        try self.init(hostname: hostname, port: port)
         self.password = password
-        let _:RedisType = try auth(password: password)
+
+        self.redisSocket = try RedisSocket(hostname: hostname, port: port)
+
+
+        if let password = password, !password.characters.isEmpty {
+        	let _:RedisType = try auth(password: password)
+        }
     }
 
     private func processCmd(_ cmd: String) throws -> RedisType {
