@@ -112,4 +112,11 @@ extension Redis {
     	return try sendCommand("SELECT", values: ["\(databaseIndex)"])
     }
 
+    public func hset(key: String, field: String, value: String) throws -> RedisType {
+        return try sendCommand("HSET", values: [key, field, value])
+    }
+
+    public func hget(key: String, field: String) throws -> RedisType {
+        return try sendCommand("HGET", values: [key, field])
+    }
 }

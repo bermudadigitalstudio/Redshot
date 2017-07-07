@@ -12,7 +12,8 @@ final class RedShotTests: XCTestCase {
         ("testSubscribe", testSubscribe),
         ("testUnsubscribe", testUnsubscribe),
         ("testIncrement", testIncrement),
-        ("testSelect", testSelect)
+        ("testSelect", testSelect),
+        ("testhset", testhset)
     ]
 
     func testSubscribe() throws {
@@ -253,4 +254,25 @@ final class RedShotTests: XCTestCase {
             XCTFail("Select throw an error : \(error.localizedDescription)")
         }
     }
+
+    func testhset() {
+        #if os(Linux)
+            let hostname = "redis"
+            let port = 6379
+        #else
+            let hostname = "localhost"
+            let port = 6379
+        #endif
+
+        do {
+            let redis = try Redis(hostname: hostname, port: port, password:"password123")
+            let hsetResult = try redis.hset(key: "TEST_HASH",field: "MY_KEY", value: "my value")
+            XCTAssertEqual(hsetResult as? Int, 1)
+            let hgetResult = try redis.hget(key: "TEST_HASH", field: "MY_KEY")
+            XCTAssertEqual(hgetResult as? String, "my value")
+        } catch {
+            XCTFail("Select throw an error : \(error.localizedDescription)")
+        }
+    }
+
 }
