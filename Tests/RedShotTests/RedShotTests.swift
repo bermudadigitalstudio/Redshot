@@ -1,5 +1,15 @@
-import XCTest
+//
+// This source file is part of the RedShot open source project
+//
+// Copyright (c) 2017  Bermuda Digital Studio
+// Licensed under MIT
+//
+// See https://github.com/bermudadigitalstudio/Redshot/blob/master/LICENSE for license information
+//
+//  Created by Laurent Gaches on 13/06/2017.
+//
 
+import XCTest
 import RedShot
 
 final class RedShotTests: XCTestCase {
@@ -266,7 +276,7 @@ final class RedShotTests: XCTestCase {
 
         do {
             let redis = try Redis(hostname: hostname, port: port, password:"password123")
-            let hsetResult = try redis.hset(key: "TEST_HASH",field: "MY_KEY", value: "my value")
+            let hsetResult = try redis.hset(key: "TEST_HASH", field: "MY_KEY", value: "my value")
             XCTAssertEqual(hsetResult as? Int, 1)
             let hgetResult = try redis.hget(key: "TEST_HASH", field: "MY_KEY")
             XCTAssertEqual(hgetResult as? String, "my value")

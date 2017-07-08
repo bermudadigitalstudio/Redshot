@@ -1,6 +1,10 @@
 //
-//  Redis.swift
-//  RedShot
+// This source file is part of the RedShot open source project
+//
+// Copyright (c) 2017  Bermuda Digital Studio
+// Licensed under MIT
+//
+// See https://github.com/bermudadigitalstudio/Redshot/blob/master/LICENSE for license information
 //
 //  Created by Laurent Gaches on 12/06/2017.
 //
