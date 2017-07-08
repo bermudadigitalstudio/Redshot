@@ -80,42 +80,124 @@ extension Redis {
         return try sendCommand("SET", values: cmd)
     }
 
+    /// Add the specified members to the set stored at key.
+    /// Specified members that are already a member of this set are ignored.
+    /// If key does not exist, a new set is created before adding the specified members.
+    /// An error is returned when the value stored at key is not a set.
+    ///
+    /// - Parameters:
+    ///   - key: The key.
+    ///   - values: The values
+    /// - Returns: Integer reply - the number of elements that were added to the set,
+    ///            not including all the elements already present into the set.
+    /// - Throws: a RedisError.
     public func sadd(key: String, values: String...) throws -> RedisType {
         var vals = [key]
         vals.append(contentsOf: values)
         return try sendCommand("SADD", values: vals)
     }
 
+    /// Returns all the members of the set value stored at key.
+    ///
+    /// - Parameter key: The keys.
+    /// - Returns: Array reply - all elements of the set.
+    /// - Throws: a RedisError.
     public func smbembers(key: String) throws -> RedisType {
       return try sendCommand("SMEMBERS", values: [key])
     }
 
+    /// Insert all the specified values at the head of the list stored at key.
+    /// If key does not exist, it is created as empty list before performing the push operations.
+    /// When key holds a value that is not a list, an error is returned.
+    ///
+    /// It is possible to push multiple elements using a single command call just specifying multiple arguments
+    /// at the end of the command. Elements are inserted one after the other to the head of the list,
+    /// from the leftmost element to the rightmost element.
+    /// So for instance the command LPUSH mylist a b c will result into a list containing c as first element,
+    /// b as second element and a as third element.
+    ///
+    /// - Parameters:
+    ///   - key: The key.
+    ///   - values: the values
+    /// - Returns: Integer reply - the length of the list after the push operations.
+    /// - Throws: a RedisError.
     public func lpush(key: String, values: String...) throws -> RedisType {
         var vals = [key]
         vals.append(contentsOf: values)
         return try sendCommand("LPUSH", values: vals)
     }
 
+    /// Removes and returns the first element of the list stored at key.
+    ///
+    /// - Parameter key: The key.
+    /// - Returns: Bulk string reply - the value of the first element, or nil when key does not exist.
+    /// - Throws: a RedisError.
     public func lpop(key: String) throws -> RedisType {
       return try sendCommand("LPOP", values: [key])
     }
 
+    /// The CLIENT SETNAME command assigns a name to the current connection.
+    /// The assigned name is displayed in the output of CLIENT LIST
+    /// so that it is possible to identify the client that performed a given connection.
+    ///
+    /// - Parameter clientName: the name to assign
+    /// - Returns: Simple string reply - OK if the connection name was successfully set.
+    /// - Throws: a RedisError
     public func clientSetName(clientName: String) throws -> RedisType {
         return try sendCommand("CLIENT", values: ["SETNAME", clientName])
     }
 
+    /// Increments the number stored at key by one.
+    /// If the key does not exist, it is set to 0 before performing the operation.
+    /// An error is returned if the key contains a value of the wrong type
+    /// or contains a string that can not be represented as integer.
+    /// This operation is limited to 64 bit signed integers.
+    /// Note: this is a string operation because Redis does not have a dedicated integer type.
+    /// The string stored at the key is interpreted as a base-10 64 bit signed integer to execute the operation.
+    /// Redis stores integers in their integer representation, so for string values that actually hold an integer,
+    /// there is no overhead for storing the string representation of the integer.
+    ///
+    /// - Parameter key: The key.
+    /// - Returns: Integer reply - the value of key after the increment
+    /// - Throws: a RedisError
     public func incr(key: String) throws -> RedisType {
     	return try sendCommand("INCR", values: [key])
     }
 
+    /// Select the Redis logical database having the specified zero-based numeric index.
+    /// New connections always use the database 0.
+    ///
+    /// - Parameter databaseIndex: the index to select.
+    /// - Returns: A simple string reply OK if SELECT was executed correctly.
+    /// - Throws: a RedisError.
     public func select(databaseIndex: Int) throws -> RedisType {
     	return try sendCommand("SELECT", values: ["\(databaseIndex)"])
     }
 
+    /// Sets field in the hash stored at key to value.
+    /// If key does not exist, a new key holding a hash is created.
+    /// If field already exists in the hash, it is overwritten.
+    ///
+    /// - Parameters:
+    ///   - key: The key.
+    ///   - field: The field in the hash.
+    ///   - value: The value to set.
+    /// - Returns: Integer reply, specifically:
+    ///            1 if field is a new field in the hash and value was set.
+    ///            0 if field already exists in the hash and the value was updated.
+    /// - Throws:  a RedisError
     public func hset(key: String, field: String, value: String) throws -> RedisType {
         return try sendCommand("HSET", values: [key, field, value])
     }
 
+    /// Returns the value associated with `field` in the hash stored at `key`.
+    ///
+    /// - Parameters:
+    ///   - key: The key.
+    ///   - field: The field in the hash
+    /// - Returns: Bulk string reply: the value associated with field, or nil when field is not present in the hash
+    ///            or key does not exist.
+    /// - Throws: a RedisError
     public func hget(key: String, field: String) throws -> RedisType {
         return try sendCommand("HGET", values: [key, field])
     }
