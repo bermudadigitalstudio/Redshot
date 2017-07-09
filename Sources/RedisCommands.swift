@@ -205,4 +205,22 @@ extension Redis {
     public func hget(key: String, field: String) throws -> RedisType {
         return try sendCommand("HGET", values: [key, field])
     }
+
+    /// Returns all fields and values of the hash stored at key.
+    ///
+    /// - Parameter key: The key.
+    /// - Returns: a dictionary.
+    /// - Throws: a RedisError
+    public func hgetAll(key: String) throws -> [String:String] {
+        var dictionary: [String: String] = [:]
+        if let result = try sendCommand("HGETALL", values: [key]) as? Array<String> {
+            var counter = 0
+            repeat {
+                dictionary[result[counter]] = result[counter + 1]
+                counter += 1
+            } while counter < (result.count - 1)
+        }
+
+        return dictionary
+    }
 }

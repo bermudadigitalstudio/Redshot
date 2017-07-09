@@ -280,6 +280,10 @@ final class RedShotTests: XCTestCase {
             XCTAssertEqual(hsetResult as? Int, 1)
             let hgetResult = try redis.hget(key: "TEST_HASH", field: "MY_KEY")
             XCTAssertEqual(hgetResult as? String, "my value")
+
+            let hgetAllResult = try redis.hgetAll(key: "TEST_HASH")
+            XCTAssertEqual(hgetAllResult.count, 1)
+
         } catch {
             XCTFail("Select throw an error : \(error.localizedDescription)")
         }
