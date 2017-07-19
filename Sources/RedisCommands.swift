@@ -214,13 +214,15 @@ extension Redis {
     public func hgetAll(key: String) throws -> [String:String] {
         var dictionary: [String: String] = [:]
         if let result = try sendCommand("HGETALL", values: [key]) as? Array<String> {
-            var counter = 0
-            repeat {
-                dictionary[result[counter]] = result[counter + 1]
-                counter += 1
-            } while counter < (result.count - 1)
+            let tuples = stride(from: 0, to: result.count, by: 2).map { num in
+                return (result[num], result[num + 1])
+            }
+            for (key, value) in tuples {
+                dictionary[key] = value
+            }
+            return dictionary
+        } else {
+            throw RedisError.emptyResponse
         }
-
-        return dictionary
     }
 }
