@@ -1,9 +1,9 @@
-FROM swift:3.1
+FROM lgaches/docker-swift:swift-4
 
 
 WORKDIR /code
 
-COPY Package.swift /code/
+COPY Package@swift-4.0.swift /code/Package.swift
 RUN swift build || true
 
 COPY ./Sources /code/Sources
