@@ -4,7 +4,7 @@ RedShot is a minimalistic Swift client library for the [Redis](http://redis.io/)
 
 **Redshot is dependency free**. 
 
-[![Language Swift 3](https://img.shields.io/badge/Language-Swift%203-orange.svg)](https://swift.org) ![Platforms](https://img.shields.io/badge/Platforms-Docker%20%7C%20Linux%20%7C%20macOS-blue.svg) [![CircleCI](https://circleci.com/gh/bermudadigitalstudio/Redshot/tree/master.svg?style=shield)](https://circleci.com/gh/bermudadigitalstudio/Redshot/tree/master)
+[![Language Swift 4](https://img.shields.io/badge/Language-Swift%204-orange.svg)](https://swift.org) ![Platforms](https://img.shields.io/badge/Platforms-Docker%20%7C%20Linux%20%7C%20macOS-blue.svg) [![CircleCI](https://circleci.com/gh/bermudadigitalstudio/Redshot/tree/master.svg?style=shield)](https://circleci.com/gh/bermudadigitalstudio/Redshot/tree/master)
 
 ## Getting started
 To add **RedShot** in your projects.
