@@ -52,7 +52,7 @@ public class Redis {
 
         self.redisSocket = try RedisSocket(hostname: hostname, port: port)
 
-        if let password = password, !password.characters.isEmpty {
+        if let password = password, !password.isEmpty {
         	let _:RedisType = try auth(password: password)
         }
     }
@@ -91,7 +91,7 @@ public class Redis {
 
     private func redisBulkString(value: String) -> String {
         var buffer = "$"
-        let strLength = value.characters.count
+        let strLength = value.count
         buffer.append("\(strLength)")
         buffer.append("\r\n")
         buffer.append(value)
