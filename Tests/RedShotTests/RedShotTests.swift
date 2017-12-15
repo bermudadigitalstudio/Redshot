@@ -35,7 +35,7 @@ final class RedShotTests: XCTestCase {
             let port = 6379
         #endif
 
-        let redis = try Redis(hostname: hostname, port: port, password:"password123")
+        let redis = try Redis(hostname: hostname, port: port, password: "password123")
 
         let expectation = self.expectation(description: "Subscribe")
 
@@ -65,7 +65,7 @@ final class RedShotTests: XCTestCase {
                 let port = 6379
             #endif
 
-            let redis = try Redis(hostname: hostname, port: port, password:"password123")
+            let redis = try Redis(hostname: hostname, port: port, password: "password123")
 
             try redis.subscribe(channel: "ZX81", callback: { _, _ in
 
@@ -180,7 +180,7 @@ final class RedShotTests: XCTestCase {
             "Code: 200, Body: Host: localhost Time: 2017-06-20 16:28:13 +0000\r\n" +
             "Status: Ok Headers: [(name: \"Content-Type\", value: \"application/json\")]"
 
-            let redis = try Redis(hostname: hostname, port: port, password:"password123")
+            let redis = try Redis(hostname: hostname, port: port, password: "password123")
             let push = try redis.publish(channel: "ComplexString", message: message)
             XCTAssertEqual(push as? Int, 0)
         } catch RedisError.response(let response) {
@@ -199,11 +199,11 @@ final class RedShotTests: XCTestCase {
             let port = 6379
         #endif
 
-        XCTAssertThrowsError(try Redis(hostname: hostname, port: port, password:"Hello"))
+        XCTAssertThrowsError(try Redis(hostname: hostname, port: port, password: "Hello"))
         XCTAssertNoThrow(try Redis(hostname: hostname, port: port, password: ""))
 
         do {
-            let redis = try Redis(hostname: hostname, port: port, password:"password123")
+            let redis = try Redis(hostname: hostname, port: port, password: "password123")
             XCTAssertNotNil(redis)
             XCTAssertTrue(redis.isConnected)
         } catch {
@@ -221,7 +221,7 @@ final class RedShotTests: XCTestCase {
         #endif
 
         do {
-            let redis = try Redis(hostname: hostname, port: port, password:"password123")
+            let redis = try Redis(hostname: hostname, port: port, password: "password123")
             let setName = try redis.clientSetName(clientName: "REDSHOT")
             XCTAssertEqual(setName as? String, "OK")
         } catch {
@@ -239,7 +239,7 @@ final class RedShotTests: XCTestCase {
         #endif
 
         do {
-            let redis = try Redis(hostname: hostname, port: port, password:"password123")
+            let redis = try Redis(hostname: hostname, port: port, password: "password123")
             let incrResult = try redis.incr(key: "INCR_KEY")
             XCTAssertEqual(incrResult as? Int, 1)
         } catch {
@@ -257,7 +257,7 @@ final class RedShotTests: XCTestCase {
         #endif
 
         do {
-            let redis = try Redis(hostname: hostname, port: port, password:"password123")
+            let redis = try Redis(hostname: hostname, port: port, password: "password123")
             let selectResult = try redis.select(databaseIndex: 3)
             XCTAssertEqual(selectResult as? String, "OK")
         } catch {
@@ -275,7 +275,7 @@ final class RedShotTests: XCTestCase {
         #endif
 
         do {
-            let redis = try Redis(hostname: hostname, port: port, password:"password123")
+            let redis = try Redis(hostname: hostname, port: port, password: "password123")
             let hsetResult = try redis.hset(key: "TEST_HASH", field: "MY_KEY", value: "my value")
             XCTAssertEqual(hsetResult as? Int, 1)
             let hgetResult = try redis.hget(key: "TEST_HASH", field: "MY_KEY")

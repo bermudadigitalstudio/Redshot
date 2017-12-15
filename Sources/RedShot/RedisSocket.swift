@@ -187,7 +187,7 @@ class RedisSocket {
 
     static func decodeSetSockOptStatus(status: Int32) throws {
         if status == -1 {
-            let strError = String(utf8String:strerror(errno)) ?? "Unknown error code"
+            let strError = String(utf8String: strerror(errno)) ?? "Unknown error code"
             let message = "Setsockopt error \(errno) \(strError)"
 
             throw RedisError.connection(message)
@@ -196,7 +196,7 @@ class RedisSocket {
 
     static func decodeConnectStatus(connStatus: Int32) throws {
         if connStatus != 0 {
-            let strError = String(utf8String:strerror(errno)) ?? "Unknown error code"
+            let strError = String(utf8String: strerror(errno)) ?? "Unknown error code"
             let message = "Setsockopt error \(errno) \(strError)"
             throw RedisError.connection("can't connect : \(connStatus) message : \(message)")
         }
