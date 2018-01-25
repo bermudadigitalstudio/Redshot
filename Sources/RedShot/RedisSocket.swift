@@ -19,8 +19,11 @@ import Foundation
 class RedisSocket {
 
     private let socketDescriptor: Int32
+    private let bufferSize: Int
 
-    init(hostname: String, port: Int) throws {
+    init(hostname: String, port: Int, bufferSize: Int) throws {
+
+        self.bufferSize = bufferSize
 
         var hints = addrinfo()
 
@@ -96,7 +99,7 @@ class RedisSocket {
 
     func read() -> Data {
         var data = Data()
-        let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: 4096)
+        let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: bufferSize)
         var readFlags: Int32 = 0
         buffer.initialize(to: 0x0)
         var read = 0

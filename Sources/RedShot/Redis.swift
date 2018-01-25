@@ -32,6 +32,7 @@ public class Redis {
     private let port: Int
     private var password: String?
     private var subscriber = [String: RedisSocket]()
+    private let bufferSize: Int
 
     /// Test whether or not the client is connected
     public var isConnected: Bool {
@@ -45,12 +46,13 @@ public class Redis {
     ///   - port: the port number.
     ///   - password: The password is optional. If `password` is an empty `String` is ignored.
     /// - Throws: if the client can't connect
-    public required init(hostname: String, port: Int, password: String? = nil) throws {
+    public required init(hostname: String, port: Int, password: String? = nil, bufferSize: Int = 4096) throws {
 		self.hostname = hostname
         self.port = port
         self.password = password
+        self.bufferSize = bufferSize
 
-        self.redisSocket = try RedisSocket(hostname: hostname, port: port)
+        self.redisSocket = try RedisSocket(hostname: hostname, port: port, bufferSize: bufferSize)
 
         if let password = password, !password.isEmpty {
         	let _:RedisType = try auth(password: password)
@@ -59,7 +61,7 @@ public class Redis {
 
     private func processCmd(_ cmd: String) throws -> RedisType {
         if !self.isConnected {
-            redisSocket = try RedisSocket(hostname: self.hostname, port: self.port)
+            redisSocket = try RedisSocket(hostname: self.hostname, port: self.port, bufferSize: bufferSize)
             if let password = password {
                 let _: Bool = try self.auth(password: password)
             }
@@ -107,7 +109,7 @@ public class Redis {
     ///   - callback:
     /// - Throws: Errors
     public func subscribe(channel: String, callback:@escaping (RedisType?, Error?) -> Void) throws {
-        let subscribeSocket = try RedisSocket(hostname: hostname, port: port)
+        let subscribeSocket = try RedisSocket(hostname: hostname, port: port, bufferSize: bufferSize)
 
         if let password = self.password {
             subscribeSocket.send(string: "AUTH \(password)\r\n")
